@@ -333,68 +333,6 @@
             margin-bottom: 1.5rem;
         }
 
-        /* --- AI Assistant Section --- */
-        .ai-section {
-            background: linear-gradient(to bottom right, var(--light-green), var(--medical-white));
-            border-radius: 30px;
-            margin: 50px 5%;
-            padding: 4rem;
-            box-shadow: var(--shadow);
-        }
-
-        [data-theme="dark"] .ai-section {
-            background: linear-gradient(to bottom right, #1b2e1a, #121212);
-        }
-
-        .ai-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .ai-input-wrapper {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .ai-input-wrapper input {
-            flex: 1;
-            padding: 15px 25px;
-            border-radius: 15px;
-            border: 1px solid rgba(0,0,0,0.1);
-            background: var(--medical-white);
-            color: var(--text-dark);
-            font-family: inherit;
-        }
-
-        .ai-btn {
-            background: var(--primary-green);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ai-response {
-            margin-top: 2rem;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 20px;
-            border-left: 5px solid var(--accent-green);
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         /* --- Profile Section --- */
         .profile-flex {
             display: flex;
@@ -668,7 +606,6 @@
                 <li><a href="#home" data-key="nav_home">Beranda</a></li>
                 <li><a href="#artikel" data-key="nav_article">Artikel</a></li>
                 <li><a href="#resep" data-key="nav_recipe">Resep</a></li>
-                <li><a href="#ai-assistant" data-key="nav_ai">Tanya AI</a></li>
                 <li><a href="#about" data-key="nav_about">Tentang Kami</a></li>
                 <li><a href="#kontak" data-key="nav_contact">Kontak</a></li>
             </ul>
@@ -739,26 +676,6 @@
         </div>
     </section>
 
-    <!-- AI Assistant Section -->
-    <section id="ai-assistant" class="ai-section" data-aos="fade-up">
-        <div class="ai-container">
-            <h2 class="section-title" data-key="ai_title">Konsultan Enzim AI ✨</h2>
-            <p style="text-align: center; color: var(--text-dark); opacity: 0.8;" data-key="ai_desc">Tanyakan manfaat buah tertentu atau keluhan kesehatan Anda pada asisten pintar kami.</p>
-            
-            <div class="ai-input-wrapper">
-                <input type="text" id="aiInput" placeholder="Contoh: Apa manfaat enzim nanas untuk radang sendi?" data-key-placeholder="ph_ai">
-                <button class="ai-btn" id="askAiBtn">
-                    <span id="aiBtnText" data-key="ai_btn">Tanya AI</span>
-                    <div id="aiLoader" style="display: none; width: 15px; height: 15px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-                </button>
-            </div>
-
-            <div id="aiResponse" class="ai-response">
-                <!-- AI Text will appear here -->
-            </div>
-        </div>
-    </section>
-
     <!-- Recipe Section -->
     <section id="resep" style="background-color: var(--light-green);">
         <h2 class="section-title" data-key="recipe_title" data-aos="fade-up">Resep Fruit Enzyme</h2>
@@ -793,7 +710,7 @@
         <h2 class="section-title" data-key="about_title" data-aos="fade-up">Tentang Kami</h2>
         <div class="profile-flex">
             <div class="profile-img-wrapper" data-aos="fade-right">
-                <img src="foto.jpg" alt="Sri Mulyani Budhi">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" alt="Sri Mulyani Budhi">
             </div>
             <div class="profile-content" data-aos="fade-left">
                 <h3 style="font-size: 2rem;">Sri Mulyani Budhi</h3>
@@ -914,76 +831,13 @@
             });
         });
 
-        // --- Gemini AI Logic ---
-        const apiKey = ""; // Disediakan otomatis oleh environment
-        const askAiBtn = document.getElementById('askAiBtn');
-        const aiInput = document.getElementById('aiInput');
-        const aiResponse = document.getElementById('aiResponse');
-        const aiLoader = document.getElementById('aiLoader');
-        const aiBtnText = document.getElementById('aiBtnText');
-
-        async function callGemini(query) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const sysPrompt = "Anda adalah asisten ahli kesehatan tradisional dan spesialis Fruit Enzyme. Jawab pertanyaan pengguna dengan ramah, informatif, dan ringkas. Gunakan bahasa sesuai bahasa yang digunakan penanya (Indonesian, English, etc).";
-            
-            const payload = {
-                contents: [{ parts: [{ text: query }] }],
-                systemInstruction: { parts: [{ text: sysPrompt }] }
-            };
-
-            let retries = 0;
-            const maxRetries = 5;
-            while (retries <= maxRetries) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) throw new Error();
-                    const data = await response.json();
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
-                } catch (e) {
-                    if (retries === maxRetries) return "Maaf, asisten AI sedang sibuk. Silakan coba beberapa saat lagi.";
-                    await new Promise(res => setTimeout(res, Math.pow(2, retries) * 1000));
-                    retries++;
-                }
-            }
-        }
-
-        askAiBtn.addEventListener('click', async () => {
-            const query = aiInput.value.trim();
-            if (!query) return;
-
-            // UI State Loading
-            aiLoader.style.display = "inline-block";
-            aiBtnText.style.display = "none";
-            askAiBtn.disabled = true;
-            aiResponse.style.display = "none";
-
-            const result = await callGemini(query);
-
-            // UI State Done
-            aiResponse.innerHTML = result.replace(/\n/g, '<br>');
-            aiResponse.style.display = "block";
-            aiLoader.style.display = "none";
-            aiBtnText.style.display = "inline";
-            askAiBtn.disabled = false;
-        });
-
-        // Allow Enter key
-        aiInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') askAiBtn.click();
-        });
-
-        // --- Multi-Language Logic ---
+        // --- Multi-Language Logic (COMPREHENSIVE) ---
         const translations = {
             id: {
-                nav_home: "Beranda", nav_article: "Artikel", nav_recipe: "Resep", nav_about: "Tentang Kami", nav_contact: "Kontak", nav_ai: "Tanya AI",
+                nav_home: "Beranda", nav_article: "Artikel", nav_recipe: "Resep", nav_about: "Tentang Kami", nav_contact: "Kontak",
                 hero_title: "Fruit Enzyme", hero_subtitle: "Kesehatan Alami dari Intisari Buah-buahan. Pendekatan Tradisional untuk Kehidupan Modern yang Lebih Sehat.",
                 hero_cta: "Pelajari Lebih Lanjut", article_title: "Peran Fruit Enzyme pada Kesehatan", recipe_title: "Resep Fruit Enzyme",
-                ai_title: "Konsultan Enzim AI ✨", ai_desc: "Tanyakan manfaat buah tertentu atau keluhan kesehatan Anda pada asisten pintar kami.", ai_btn: "Tanya AI",
-                tag_digest: "Pencernaan", tag_detox: "Detoksifikasi", tag_immune: "Imunitas", ph_ai: "Contoh: Apa manfaat enzim nanas?",
+                tag_digest: "Pencernaan", tag_detox: "Detoksifikasi", tag_immune: "Imunitas", 
                 art1_h: "Metabolisme Tubuh", art1_p: "Enzim buah membantu memecah nutrisi agar lebih mudah diserap oleh tubuh, meningkatkan efisiensi sistem pencernaan dan metabolisme secara menyeluruh.",
                 art2_h: "Pembersihan Racun", art2_p: "Fermentasi alami buah menghasilkan mikroorganisme baik yang membantu membersihkan darah dan membuang racun sisa metabolisme (detox).",
                 art3_h: "Pemulihan & Harapan", art3_p: "Kandungan antioksidan yang tinggi dalam fruit enzyme memberikan perlindungan sel dan membantu proses pemulihan pasien lebih cepat.",
@@ -1000,11 +854,10 @@
                 footer_copy: "© 2026. Website Resmi Fruit Enzyme. Dibuat dengan dedikasi oleh Sri Mulyani Budhi."
             },
             en: {
-                nav_home: "Home", nav_article: "Articles", nav_recipe: "Recipes", nav_about: "About Us", nav_contact: "Contact", nav_ai: "Ask AI",
+                nav_home: "Home", nav_article: "Articles", nav_recipe: "Recipes", nav_about: "About Us", nav_contact: "Contact",
                 hero_title: "Fruit Enzyme", hero_subtitle: "Natural Health from Fruit Essence. A Traditional Approach for a Healthier Modern Life.",
                 hero_cta: "Learn More", article_title: "The Role of Fruit Enzyme in Health", recipe_title: "Fruit Enzyme Recipes",
-                ai_title: "AI Enzyme Consultant ✨", ai_desc: "Ask about specific fruit benefits or your health concerns to our smart assistant.", ai_btn: "Ask AI",
-                tag_digest: "Digestion", tag_detox: "Detoxification", tag_immune: "Immunity", ph_ai: "e.g., What are the benefits of pineapple enzyme?",
+                tag_digest: "Digestion", tag_detox: "Detoxification", tag_immune: "Immunity",
                 art1_h: "Body Metabolism", art1_p: "Fruit enzymes help break down nutrients for easier absorption, improving digestive system efficiency and overall metabolism.",
                 art2_h: "Toxin Cleansing", art2_p: "Natural fruit fermentation produces good microorganisms that help clean the blood and remove metabolic waste toxins (detox).",
                 art3_h: "Recovery & Hope", art3_p: "High antioxidant content in fruit enzymes provides cell protection and helps the patient's recovery process faster.",
@@ -1021,40 +874,84 @@
                 footer_copy: "© 2026. Fruit Enzyme Official Website. Created with dedication by Sri Mulyani Budhi."
             },
             de: {
-                nav_home: "Startseite", nav_article: "Artikel", nav_recipe: "Rezepte", nav_about: "Über uns", nav_contact: "Kontakt", nav_ai: "KI fragen",
+                nav_home: "Startseite", nav_article: "Artikel", nav_recipe: "Rezepte", nav_about: "Über uns", nav_contact: "Kontakt",
                 hero_title: "Fruchtenzym", hero_subtitle: "Natürliche Gesundheit aus Fruchtessenzen. Ein traditioneller Ansatz für ein gesünderes modernes Leben.",
                 hero_cta: "Mehr erfahren", article_title: "Die Rolle von Fruchtenzymen in der Gesundheit", recipe_title: "Fruchtenzym-Rezepte",
-                ai_title: "KI-Enzym-Berater ✨", ai_desc: "Fragen Sie unseren intelligenten Assistenten nach den Vorteilen bestimmter Früchte oder Ihren gesundheitlichen Bedenken.", ai_btn: "Fragen",
-                tag_digest: "Verdauung", tag_detox: "Entgiftung", tag_immune: "Immunität", ph_ai: "z.B. Was sind die Vorteile von Ananasenzymen?",
-                art1_h: "Stoffwechsel", art1_p: "Fruchtenzyme helfen beim Abbau von Nährstoffen für eine leichtere Aufnahme dan verbessern Stoffwechsel.",
-                rec1_h: "🍎 Klassisches Apfelrezept", rec1_i1: "1 kg Apfel (dünn geschnitten)", rec1_i2: "1 kg Honig", rec1_i3: "Glasgefäß",
+                tag_digest: "Verdauung", tag_detox: "Entgiftung", tag_immune: "Immunität",
+                art1_h: "Stoffwechsel", art1_p: "Fruchtenzyme helfen beim Abbau von Nährstoffen für eine leichtere Aufnahme und verbessern die Effizienz des Verdauungssystems und den allgemeinen Stoffwechsel.",
+                art2_h: "Giftreinigung", art2_p: "Die natürliche Fruchtfermentation produziert gute Mikroorganismen, die helfen, das Blut zu reinigen und Stoffwechselabfalltoxine zu entfernen (Detox).",
+                art3_h: "Erholung & Hoffnung", art3_p: "Der hohe Gehalt an Antioxidantien in Fruchtenzymen bietet Zellschutz und beschleunigt den Genesungsprozess des Patienten.",
+                rec1_h: "🍎 Klassisches Apfelrezept", rec1_i1: "1 kg Malang-Apfel (dünn geschnitten)", rec1_i2: "1 kg Brauner Zucker/Honig", rec1_i3: "Sterilisiertes Glasgefäß",
+                rec2_h: "🍍 Tropisches Ananasrezept", rec2_i1: "1 reife Ananas", rec2_i2: "800g Kandiszucker", rec2_i3: "Etwas Zitronensaft",
+                rec_timer: "3-6 Monate an einem dunklen Ort stehen lassen.", rec_benefit: "Hervorragend bei natürlichen Entzündungen.",
                 about_title: "Über uns", prof_role: "Schöpfer & Fruchtenzym-Praktiker", 
-                contact_title: "Feedback & Vorschläge", label_name: "Vollständiger Name", label_email: "E-Mail-Adresse",
-                form_submit: "Nachricht senden", footer_copy: "© 2026. Offizielle Website für Fruchtenzyme."
+                prof_desc: "Ich widme mich der Verbreitung von Wissen über die Magie der Fruchtenzyme, die vielen Menschen auf ihrem Weg zur natürlichen Genesung geholfen haben.",
+                prof_addr: "📍 Jalan Cenderawasih 1 Blok G no 2, Karawang West, 41312",
+                contact_title: "Feedback & Vorschläge", label_name: "Vollständiger Name", label_email: "E-Mail-Adresse", label_msg: "Nachricht / Feedback / Vorschlag",
+                ph_name: "Geben Sie Ihren Namen ein...", ph_email: "email@beispiel.de", ph_msg: "Schreiben Sie hier Ihre Nachricht...",
+                form_submit: "Nachricht senden", footer_desc: "Unser Ziel ist es, durch das Wunder der traditionellen Fruchtfermentation Frische, Gesundheit und neue Hoffnung in einen modernen Lebensstil zu bringen.",
+                footer_h_nav: "Schnelle Navigation", footer_h_cont: "Kontaktieren Sie uns", footer_hours: "⏰ Mo - Fr: 09:00 - 17:00",
+                footer_copy: "© 2026. Offizielle Website für Fruchtenzyme. Erstellt mit Hingabe von Sri Mulyani Budhi."
             },
             es: {
-                nav_home: "Inicio", nav_article: "Artículos", nav_recipe: "Recetas", nav_about: "Nosotros", nav_contact: "Contacto", nav_ai: "Pregunta IA",
-                hero_title: "Enzima de Fruta", hero_subtitle: "Salud Natural de la Esencia de Frutas.",
-                hero_cta: "Saber más", article_title: "El papel de la enzima de fruta en la salud", recipe_title: "Recetas",
-                ai_title: "Consultor de Enzimas IA ✨", ai_desc: "Pregunte sobre los beneficios de las frutas a nuestro asistente inteligente.", ai_btn: "Preguntar",
-                tag_digest: "Digestión", ph_ai: "Ej: ¿Beneficios de la piña?",
-                form_submit: "Enviar Mensaje", footer_copy: "© 2026. Sitio Web Oficial de Enzimas de Frutas."
+                nav_home: "Inicio", nav_article: "Artículos", nav_recipe: "Recetas", nav_about: "Nosotros", nav_contact: "Contacto",
+                hero_title: "Enzima de Fruta", hero_subtitle: "Salud Natural de la Esencia de Frutas. Un Enfoque Tradicional para una Vida Moderna Más Saludable.",
+                hero_cta: "Saber más", article_title: "El papel de la enzima de fruta en la salud", recipe_title: "Recetas de Enzimas de Frutas",
+                tag_digest: "Digestión", tag_detox: "Desintoxicación", tag_immune: "Inmunidad",
+                art1_h: "Metabolismo Corporal", art1_p: "Las enzimas de las frutas ayudan a descomponer los nutrientes para una absorción más fácil, mejorando la eficiencia del sistema digestivo y el metabolismo general.",
+                art2_h: "Limpieza de Toxinas", art2_p: "La fermentación natural de las frutas produce microorganismos buenos que ayudan a limpiar la sangre y eliminar las toxinas de los desechos metabólicos (detox).",
+                art3_h: "Recuperación y Esperanza", art3_p: "El alto contenido de antioxidantes en las enzimas de frutas proporciona protección celular y ayuda a que el proceso de recuperación del paciente sea más rápido.",
+                rec1_h: "🍎 Receta Clásica de Manzana", rec1_i1: "1kg de Manzana Malang (en rodajas finas)", rec1_i2: "1kg de Azúcar Morena/Miel", rec1_i3: "Frasco de vidrio esterilizado",
+                rec2_h: "🍍 Receta Tropical de Piña", rec2_i1: "1 Piña madura", rec2_i2: "800gr de Azúcar cande", rec2_i3: "Un poco de jugo de Limón",
+                rec_timer: "Dejar reposar de 3 a 6 meses en un lugar oscuro.", rec_benefit: "Excelente para la antiinflamación natural.",
+                about_title: "Sobre nosotros", prof_role: "Creador y practicante de enzimas de frutas", 
+                prof_desc: "Me dedico a difundir el conocimiento sobre la magia de las enzimas de frutas que han ayudado a muchas personas en su viaje de recuperación de la salud natural.",
+                prof_addr: "📍 Jalan Cenderawasih 1 Blok G no 2, Karawang West, 41312",
+                contact_title: "Comentarios y Sugerencias", label_name: "Nombre Completo", label_email: "Correo Electrónico", label_msg: "Mensaje / Comentario / Sugerencia",
+                ph_name: "Ingrese su nombre...", ph_email: "correo@ejemplo.es", ph_msg: "Escriba su mensaje aquí...",
+                form_submit: "Enviar Mensaje", footer_desc: "Nuestra dedicación es brindar frescura, salud y nuevas esperanzas a través del milagro de la fermentación tradicional de frutas para un estilo de vida moderno.",
+                footer_h_nav: "Navegación Rápida", footer_h_cont: "Contáctenos", footer_hours: "⏰ Lun - Vie: 09:00 - 17:00",
+                footer_copy: "© 2026. Sitio Web Oficial de Enzimas de Frutas. Creado con dedicación por Sri Mulyani Budhi."
             },
             fr: {
-                nav_home: "Accueil", nav_article: "Articles", nav_recipe: "Recettes", nav_about: "À propos", nav_contact: "Contact", nav_ai: "Demander IA",
-                hero_title: "Enzyme de Fruit", hero_subtitle: "Santé naturelle issue de l'essence de fruit.",
-                hero_cta: "En savoir plus", article_title: "Rôle des enzymes de fruits", recipe_title: "Recettes",
-                ai_title: "Consultant Enzyme IA ✨", ai_desc: "Posez vos questions sur les bienfaits des fruits.", ai_btn: "Demander",
-                tag_digest: "Digestion", ph_ai: "Ex: Bienfaits de l'ananas ?",
-                form_submit: "Envoyer le message", footer_copy: "© 2026. Site Officiel d'Enzyme de Fruit."
+                nav_home: "Accueil", nav_article: "Articles", nav_recipe: "Recettes", nav_about: "À propos", nav_contact: "Contact",
+                hero_title: "Enzyme de Fruit", hero_subtitle: "Santé naturelle issue de l'essence de fruit. Une approche traditionnelle pour une vie moderne plus saine.",
+                hero_cta: "En savoir plus", article_title: "Le rôle des enzymes de fruits dans la santé", recipe_title: "Recettes d'Enzymes de Fruits",
+                tag_digest: "Digestion", tag_detox: "Détoxification", tag_immune: "Immunité",
+                art1_h: "Métabolisme Corporel", art1_p: "Les enzymes de fruits aident à décomposer les nutriments pour une absorption plus facile, améliorant l'efficacité du système digestif et le métabolisme global.",
+                art2_h: "Nettoyage des Toxines", art2_p: "La fermentation naturelle des fruits produit de bons micro-organismes qui aident à nettoyer le sang et à éliminer les toxines des déchets métaboliques (détox).",
+                art3_h: "Récupération & Espoir", art3_p: "La teneur élevée en antioxydants des enzymes de fruits assure la protection des cellules et aide au processus de récupération du patient plus rapidement.",
+                rec1_h: "🍎 Recette Classique à la Pomme", rec1_i1: "1kg de Pomme Malang (tranchée finement)", rec1_i2: "1kg de Sucre brun/Miel", rec1_i3: "Bocal en verre stérilisé",
+                rec2_h: "🍍 Recette Tropicale à l'Ananas", rec2_i1: "1 Ananas mûr", rec2_i2: "800gr de Sucre candi", rec2_i3: "Un peu de jus de Citron",
+                rec_timer: "Laisser reposer 3 à 6 mois dans un endroit sombre.", rec_benefit: "Excellent pour l'anti-inflammation naturelle.",
+                about_title: "À propos de nous", prof_role: "Créateur & Praticien en Enzymes de Fruits", 
+                prof_desc: "Je me consacre à diffuser les connaissances sur la magie des enzymes de fruits qui ont aidé de nombreuses personnes dans leur cheminement vers une guérison naturelle.",
+                prof_addr: "📍 Jalan Cenderawasih 1 Blok G no 2, Karawang West, 41312",
+                contact_title: "Commentaires & Suggestions", label_name: "Nom complet", label_email: "Adresse e-mail", label_msg: "Message / Commentaire / Suggestion",
+                ph_name: "Entrez votre nom...", ph_email: "email@exemple.fr", ph_msg: "Écrivez votre message ici...",
+                form_submit: "Envoyer le message", footer_desc: "Notre dévouement est d'apporter de la fraîcheur, de la santé et un nouvel espoir grâce au miracle de la fermentation traditionnelle des fruits pour un mode de vie moderne.",
+                footer_h_nav: "Navigation Rapide", footer_h_cont: "Contactez-nous", footer_hours: "⏰ Lun - Ven : 09h00 - 17h00",
+                footer_copy: "© 2026. Site Officiel d'Enzyme de Fruit. Créé avec dévouement par Sri Mulyani Budhi."
             },
             zh: {
-                nav_home: "首页", nav_article: "文章", nav_recipe: "配方", nav_about: "关于我们", nav_contact: "联系我们", nav_ai: "咨询 AI",
-                hero_title: "水果酵素", hero_subtitle: "源自水果精华的天然健康。",
+                nav_home: "首页", nav_article: "文章", nav_recipe: "配方", nav_about: "关于我们", nav_contact: "联系我们",
+                hero_title: "水果酵素", hero_subtitle: "源自水果精华的天然健康。传统方法助力更健康的现代生活。",
                 hero_cta: "了解更多", article_title: "水果酵素对健康的作用", recipe_title: "水果酵素配方",
-                ai_title: "AI 酵素顾问 ✨", ai_desc: "向我们的智能助手咨询特定水果的益处。", ai_btn: "提问",
-                tag_digest: "消化", ph_ai: "例如：菠萝酵素有什么好处？",
-                form_submit: "发送信息", footer_copy: "© 2026. 水果酵素官网。"
+                tag_digest: "消化", tag_detox: "排毒", tag_immune: "免疫力",
+                art1_h: "身体代谢", art1_p: "水果酵素有助于分解营养物质，使其更容易吸收，提高消化系统效率和整体代谢。",
+                art2_h: "毒素清洗", art2_p: "天然水果发酵产生有益微生物，有助于清洁血液并清除代谢废物毒素（排毒）。",
+                art3_h: "康复与希望", art3_p: "水果酵素中的高抗氧化含量提供细胞保护，并帮助患者更快地康复。",
+                rec1_h: "🍎 经典苹果配方", rec1_i1: "1kg Malang苹果（切薄片）", rec1_i2: "1kg 红糖/蜂蜜", rec1_i3: "消毒玻璃瓶",
+                rec2_h: "🍍 热带菠萝配方", rec2_i1: "1个熟菠萝", rec2_i2: "800g 冰糖", rec2_i3: "少许柠檬汁",
+                rec_timer: "放在阴暗处静置 3-6 个月。", rec_benefit: "对天然抗炎非常有益。",
+                about_title: "关于我们", prof_role: "创作者与水果酵素从业者", 
+                prof_desc: "我致力于传播关于水果酵素神奇力量的知识，这些力量已帮助许多人在自然健康康复之旅中受益。",
+                prof_addr: "📍 Jalan Cenderawasih 1 Blok G no 2, Karawang West, 41312",
+                contact_title: "意见反馈", label_name: "全名", label_email: "电子邮件", label_msg: "留言/意见/建议",
+                ph_name: "输入您的姓名...", ph_email: "email@example.cn", ph_msg: "在此输入您的信息...",
+                form_submit: "发送信息", footer_desc: "我们致力于通过传统水果发酵的奇迹，为现代生活方式带来清新、健康和新的希望。",
+                footer_h_nav: "快速导航", footer_h_cont: "联系我们", footer_hours: "⏰ 周一至周五：09:00 - 17:00",
+                footer_copy: "© 2026. 水果酵素官网。由 Sri Mulyani Budhi 倾情打造。"
             }
         };
 
@@ -1065,16 +962,18 @@
         function changeLanguage(lang) {
             document.getElementById('currentLang').textContent = flags[lang];
             
+            // Translate text content
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
-                if (translations[lang] && translations[lang][key]) {
+                if (translations[lang][key]) {
                     element.innerHTML = translations[lang][key];
                 }
             });
 
+            // Translate placeholders
             document.querySelectorAll('[data-key-placeholder]').forEach(element => {
                 const key = element.getAttribute('data-key-placeholder');
-                if (translations[lang] && translations[lang][key]) {
+                if (translations[lang][key]) {
                     element.placeholder = translations[lang][key];
                 }
             });
@@ -1082,12 +981,6 @@
             document.documentElement.lang = lang;
             AOS.refresh();
         }
-
-        // Add Spin animation for loader
-        const style = document.createElement('style');
-        style.innerHTML = `@keyframes spin { to { transform: rotate(360deg); } }`;
-        document.head.appendChild(style);
     </script>
 </body>
-
 </html>
